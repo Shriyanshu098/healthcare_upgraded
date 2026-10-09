@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Altitude-Based Oxygen & Health Risk Assessment System</title>
+  <meta name="description" content="Altitude-Based Oxygen & Health Risk Assessment System with MongoDB Backend - Team Warriors">
+  
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <div style="display: flex; align-items: center; gap: 0.85rem;">
+        <div class="brand">
+          <div class="brand-icon">⛰️</div>
+          <span>OxyAltitude</span>
+        </div>
+        <!-- Live MongoDB Connection Pill -->
+        <div class="mongo-pill" id="mongoPill" title="Live connection status to MongoDB database: oxyaltitude">
+          <span class="mongo-dot"></span>
+          <span id="mongoStatusText">Connecting MongoDB...</span>
+        </div>
+      </div>
+
+      <nav>
+        <ul class="nav-links">
+          <li><button class="nav-btn active" data-tab="tab-assess">🩺 Risk Assessment</button></li>
+          <li><button class="nav-btn" data-tab="tab-history">📜 Assessment Logs</button></li>
+          <li><button class="nav-btn" data-tab="tab-alerts">🚨 Emergency Alerts</button></li>
+          <li><button class="nav-btn" data-tab="tab-guide">📚 Safety Guide</button></li>
+          <li><button class="nav-btn" data-tab="tab-team">👥 Team Warriors</button></li>
+        </ul>
+      </nav>
+
+      <!-- Active User Profile Pill -->
+      <div class="user-tag" id="userTag" title="Click to switch member profile">
+        <span id="userTagIcon">👤</span>
+        <span id="activeUserName">Shriyanshu Mishra</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <h1>Altitude-Based Oxygen & Health Risk Assessment System</h1>
+      <p>
+        Real-time high-altitude health assessment powered by <strong>Node.js, Express, and MongoDB</strong>. Evaluates blood oxygen (SpO₂), altitude, and symptoms to detect hypoxemia and altitude sickness.
+      </p>
+    </div>
+  </section>
+
+  <!-- Main Content Container -->
+  <main class="container">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: SIMPLE RISK ASSESSMENT              -->
+    <!-- ========================================== -->
+    <div id="tab-assess" class="tab-content">
+      <div class="app-grid">
+        
+        <!-- LEFT: INPUT FORM -->
+        <div class="card">
+          <h2 class="card-title">
+            <span>📝</span> Health & Altitude Inputs
+          </h2>
+          <p class="card-desc">Fill in current parameters to assess altitude sickness risks.</p>
+
+          <!-- 1. Altitude Input -->
+          <div class="form-group">
+            <label class="form-label" for="inputAltitude">
+              <span>Current Altitude (in meters)</span>
+              <span class="form-label-hint">e.g. 3500m</span>
+            </label>
+            <input type="number" id="inputAltitude" class="input-field" value="3500" min="0" max="8848" step="50">
+            
+            <!-- Quick Chips -->
+            <div class="preset-chips">
+              <span style="font-size: 0.72rem; color: var(--text-dim); margin-right: 2px; align-self: center;">Presets:</span>
+              <button type="button" class="chip-btn" data-alt="1000">1,000m (Low Hills)</button>
+              <button type="button" class="chip-btn" data-alt="2500">2,500m (High Alt. Threshold)</button>
+              <button type="button" class="chip-btn active" data-alt="3500">3,500m (Leh / Cusco)</button>
+              <button type="button" class="chip-btn" data-alt="5000">5,000m (High Pass)</button>
+            </div>
+          </div>
+
+          <!-- 2. SpO2 Oxygen Level -->
+          <div class="form-group">
+            <label class="form-label" for="inputSpo2">
+              <span>Blood Oxygen Level - SpO₂ (%)</span>
+              <span class="form-label-hint">From pulse oximeter</span>
+            </label>
+            <input type="number" id="inputSpo2" class="input-field" value="89" min="50" max="100">
+            
+            <!-- Quick SpO2 buttons -->
+            <div class="preset-chips">
+              <span style="font-size: 0.72rem; color: var(--text-dim); margin-right: 2px; align-self: center;">Quick:</span>
+              <button type="button" class="chip-btn" data-spo2="98">98% (Normal)</button>
+              <button type="button" class="chip-btn active" data-spo2="89">89% (Moderate)</button>
+              <button type="button" class="chip-btn" data-spo2="75">75% (Critical)</button>
+            </div>
+          </div>
+
+          <!-- 3. Heart Rate & Age (Side by Side) -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-bottom: 1rem;">
+            <div>
+              <label class="form-label" for="inputHeartRate">
+                <span>Heart Rate (bpm)</span>
+              </label>
+              <input type="number" id="inputHeartRate" class="input-field" value="82" min="40" max="180">
+            </div>
+            <div>
+              <label class="form-label" for="inputAge">
+                <span>Age (years)</span>
+              </label>
+              <input type="number" id="inputAge" class="input-field" value="21" min="10" max="99">
+            </div>
+          </div>
+
+          <!-- 4. Symptoms Checklist -->
+          <div class="symptoms-box">
+            <div class="symptoms-title">Select Any Symptoms You Are Experiencing:</div>
+            
+            <label class="checkbox-item">
+              <input type="checkbox" id="symHeadache" checked>
+              <span>Headache</span>
+            </label>
+
+            <label class="checkbox-item">
+              <input type="checkbox" id="symDizziness">
+              <span>Dizziness or lightheadedness</span>
+            </label>
+
+            <label class="checkbox-item">
+              <input type="checkbox" id="symNausea">
+              <span>Nausea or loss of appetite</span>
+            </label>
+
+            <label class="checkbox-item">
+              <input type="checkbox" id="symFatigue">
+              <span>Fatigue or extreme tiredness</span>
+            </label>
+
+            <label class="checkbox-item" style="color: #fca5a5;">
+              <input type="checkbox" id="symBreathless">
+              <span>Shortness of breath / Difficulty breathing at rest (Severe)</span>
+            </label>
+          </div>
+
+          <!-- Main Action Button -->
+          <button type="button" class="btn-primary" id="btnAssess">
+            <span>🔍 Check Health Risk</span>
+          </button>
+
+          <!-- 3 Simple Demo Case Buttons -->
+          <div class="demo-row">
+            <span style="font-size: 0.72rem; color: var(--text-dim); font-weight: 600;">Demo Scenarios:</span>
+            <button type="button" class="demo-btn" id="demoHealthy">🟢 Healthy (Low Risk)</button>
+            <button type="button" class="demo-btn" id="demoModerate">🟡 Moderate AMS</button>
+            <button type="button" class="demo-btn" id="demoHigh">🔴 Critical High Risk</button>
+          </div>
+        </div>
+
+        <!-- RIGHT: ASSESSMENT RESULT -->
+        <div class="card">
+          <h2 class="card-title">
+            <span>📊</span> Assessment Result
+          </h2>
+          <p class="card-desc">Evaluated by clinical rules and ready to persist into MongoDB.</p>
+
+          <!-- Result Box -->
+          <div class="result-box moderate" id="resultCard">
+            <span class="result-badge moderate" id="resBadge">MODERATE RISK</span>
+            <div class="result-title" id="resTitle">Moderate Risk</div>
+            <p class="result-summary" id="resSummary">
+              Caution advised: Mild to moderate altitude symptoms or reduced oxygen saturation.
+            </p>
+          </div>
+
+          <!-- Mini Metrics -->
+          <div class="mini-stats">
+            <div class="mini-stat-card">
+              <div class="mini-stat-label">Expected SpO₂ Range</div>
+              <div class="mini-stat-val" id="resExpectedSpo2" style="color: #38bdf8;">84% – 90%</div>
+            </div>
+            <div class="mini-stat-card">
+              <div class="mini-stat-label">Active Symptoms</div>
+              <div class="mini-stat-val" id="resSymptomCount" style="color: #fbbf24;">1 Reported</div>
+            </div>
+          </div>
+
+          <!-- Safety Guidance -->
+          <div class="advice-box">
+            <div class="advice-title">Recommended Safety Guidance:</div>
+            <ul class="advice-list" id="resAdviceList">
+              <li>Halt ascent. Stay at your current altitude for 24–48 hours to acclimatize.</li>
+              <li>Rest completely and avoid heavy physical exertion.</li>
+              <li>Drink 3 to 4 liters of clean water with electrolytes daily.</li>
+              <li>Check your SpO₂ every 3–4 hours. If symptoms get worse, descend.</li>
+            </ul>
+          </div>
+
+          <!-- Save to MongoDB Button -->
+          <button type="button" class="btn-save" id="btnSaveRecord">
+            <span>💾 Save to MongoDB Collection</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: MODULE 2: ASSESSMENT RECORDS        -->
+    <!-- ========================================== -->
+    <div id="tab-history" class="tab-content" style="display: none;">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <div>
+            <h2 class="card-title">
+              <span>📜</span> Module 2: Assessment Records
+            </h2>
+            <p class="card-desc" style="margin-bottom: 0;">Connected to MongoDB collection: <code>assessments</code></p>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button type="button" class="chip-btn" id="btnExportCSV" style="background: rgba(255, 255, 255, 0.08); color: #fff;">
+              📥 Export to CSV
+            </button>
+            <button type="button" class="chip-btn" id="btnClearHistory" style="color: #f87171;">
+              🗑️ Clear
+            </button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="simple-table">
+            <thead>
+              <tr>
+                <th>Record ID</th>
+                <th>Date & Time</th>
+                <th>Trekker</th>
+                <th>Altitude</th>
+                <th>SpO₂</th>
+                <th>Pulse</th>
+                <th>Symptoms</th>
+                <th>Risk Category</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: MODULE 3: EMERGENCY ALERTS (NEW!)  -->
+    <!-- ========================================== -->
+    <div id="tab-alerts" class="tab-content" style="display: none;">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <div>
+            <h2 class="card-title">
+              <span>🚨</span> Module 3: High-Risk Emergency Alerts
+            </h2>
+            <p class="card-desc" style="margin-bottom: 0;">Connected to MongoDB collection: <code>emergency_alerts</code> (Generated on High Risk events)</p>
+          </div>
+          <button type="button" class="chip-btn" id="btnRefreshAlerts" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3);">
+            🔄 Refresh Alerts
+          </button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="simple-table">
+            <thead>
+              <tr>
+                <th>Alert ID</th>
+                <th>Timestamp</th>
+                <th>Trekker</th>
+                <th>Altitude / SpO₂</th>
+                <th>Trigger Reason</th>
+                <th>Action Mandated</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="alertsTableBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: ALTITUDE SAFETY GUIDE               -->
+    <!-- ========================================== -->
+    <div id="tab-guide" class="tab-content" style="display: none;">
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <h2 class="card-title"><span>📚</span> Altitude Illness Safety Guide</h2>
+        <p class="card-desc">Evidence-based clinical guidelines from CDC & Wilderness Medical Society.</p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <div style="background: #0f172a; padding: 1.1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+            <div style="color: #f87171; font-weight: 700; font-size: 0.9rem; margin-bottom: 0.3rem;">Rule #1: Assume AMS First</div>
+            <p style="font-size: 0.82rem; color: var(--text-muted);">Any unexplained sickness above 2,500m is Acute Mountain Sickness (AMS) until proven otherwise.</p>
+          </div>
+          <div style="background: #0f172a; padding: 1.1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+            <div style="color: #fbbf24; font-weight: 700; font-size: 0.9rem; margin-bottom: 0.3rem;">Rule #2: Never Ascend Sick</div>
+            <p style="font-size: 0.82rem; color: var(--text-muted);">Never climb higher if you have active symptoms of headache, nausea, or dizziness.</p>
+          </div>
+          <div style="background: #0f172a; padding: 1.1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+            <div style="color: #34d399; font-weight: 700; font-size: 0.9rem; margin-bottom: 0.3rem;">Rule #3: Descend When Worsening</div>
+            <p style="font-size: 0.82rem; color: var(--text-muted);">If symptoms worsen at rest or breathing difficulty develops, descend 500 to 1,000 meters immediately.</p>
+          </div>
+        </div>
+
+        <h3 style="font-size: 0.95rem; margin-bottom: 0.75rem; color: #fff;">Comparison of Common Altitude Conditions:</h3>
+        <div class="table-wrap">
+          <table class="simple-table">
+            <thead>
+              <tr>
+                <th>Condition</th>
+                <th>Altitude</th>
+                <th>Key Symptoms</th>
+                <th>Primary Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>AMS</strong> (Acute Mountain Sickness)</td>
+                <td>&gt; 2,500m</td>
+                <td>Headache, nausea, fatigue, dizziness</td>
+                <td>Stop ascending, rest 24-48h, hydrate</td>
+              </tr>
+              <tr>
+                <td><strong style="color: #f87171;">HAPE</strong> (Pulmonary Edema)</td>
+                <td>&gt; 3,000m</td>
+                <td>Severe breathlessness at rest, blue lips, cough</td>
+                <td>Immediate descent (&ge; 1,000m), oxygen</td>
+              </tr>
+              <tr>
+                <td><strong style="color: #f87171;">HACE</strong> (Cerebral Edema)</td>
+                <td>&gt; 3,500m</td>
+                <td>Loss of balance/coordination, confusion</td>
+                <td>Immediate emergency descent, medical help</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 5: MODULE 1: TEAM WARRIORS & USERS    -->
+    <!-- ========================================== -->
+    <div id="tab-team" class="tab-content" style="display: none;">
+      <div class="card">
+        <h2 class="card-title"><span>👥</span> Module 1: Team & User Management</h2>
+        <p class="card-desc">Connected to MongoDB collection: <code>users</code></p>
+
+        <div style="background: #0f172a; padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 1.25rem;">
+          <div style="font-size: 0.82rem; color: #38bdf8; font-weight: 700; text-transform: uppercase;">Team Name</div>
+          <div style="font-size: 1.3rem; font-weight: 800; color: #fff;">Warriors</div>
+        </div>
+
+        <div class="team-list">
+          <!-- Member 1: Dilip Ramjali -->
+          <div class="member-card">
+            <div class="avatar" style="background: #0284c7;">DR</div>
+            <div>
+              <div style="font-size: 0.72rem; color: #38bdf8; font-weight: 700; text-transform: uppercase;">Team Lead</div>
+              <h3 style="font-size: 1rem; font-weight: 700; color: #fff;">Ramjali, Dilip</h3>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">Student ID: 24151017</p>
+              <p style="font-size: 0.75rem; color: var(--text-dim);">ramjalidilipramjali@gmail.com</p>
+            </div>
+          </div>
+
+          <!-- Member 2: Shriyanshu Mishra -->
+          <div class="member-card">
+            <div class="avatar" style="background: #059669;">SM</div>
+            <div>
+              <div style="font-size: 0.72rem; color: #34d399; font-weight: 700; text-transform: uppercase;">Team Member</div>
+              <h3 style="font-size: 1rem; font-weight: 700; color: #fff;">Mishra, Shriyanshu</h3>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">Student ID: 24151552</p>
+              <p style="font-size: 0.75rem; color: var(--text-dim);">shriyanshumishra2@gmail.com</p>
+            </div>
+          </div>
+
+          <!-- Member 3: Akash -->
+          <div class="member-card">
+            <div class="avatar" style="background: #d97706;">AK</div>
+            <div>
+              <div style="font-size: 0.72rem; color: #fbbf24; font-weight: 700; text-transform: uppercase;">Team Member</div>
+              <h3 style="font-size: 1rem; font-weight: 700; color: #fff;">Akash</h3>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">Student ID: 24151479</p>
+              <p style="font-size: 0.75rem; color: var(--text-dim);">Ay376648@gmail.com</p>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem; background: #0f172a; padding: 1.25rem; border-radius: 8px; border: 1px solid var(--border-color);">
+          <h4 style="font-size: 0.9rem; color: #fff; margin-bottom: 0.4rem;">Project Goal & Scope</h4>
+          <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.6;">
+            The proposed system combines altitude, SpO₂ blood oxygen levels, and symptoms into a simple digital assessment. It uses Node.js, Express, and MongoDB to persist user accounts, assessment histories, and real-time emergency alert logs.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- User Switch Modal -->
+  <div class="modal-overlay" id="userModal">
+    <div class="modal-card">
+      <h3 style="font-size: 1.15rem; font-weight: 700; color: #fff; margin-bottom: 0.35rem;">Switch Active Trekker Profile</h3>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">Loaded directly from MongoDB <code>users</code> collection:</p>
+      
+      <div style="display: flex; flex-direction: column; gap: 0.5rem;" id="userSelectionList">
+        <!-- Rendered by JS -->
+      </div>
+
+      <div style="margin-top: 1.25rem; text-align: right;">
+        <button type="button" class="chip-btn" id="btnCloseModal" style="padding: 0.4rem 0.8rem;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Message -->
+  <div class="toast-box" id="toastBox">Saved successfully</div>
+
+  <!-- JavaScript -->
+  <script src="js/altitude-calculator.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

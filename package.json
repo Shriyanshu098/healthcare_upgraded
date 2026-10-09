@@ -1,0 +1,24 @@
+{
+  "name": "oxyaltitude-mongodb",
+  "version": "1.0.0",
+  "description": "Altitude-Based Oxygen & Health Risk Assessment System with MongoDB",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "seed": "node seed.js"
+  },
+  "keywords": [
+    "altitude",
+    "health",
+    "mongodb",
+    "express"
+  ],
+  "author": "Team Warriors",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongoose": "^8.9.5"
+  }
+}
